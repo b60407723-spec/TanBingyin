@@ -1,0 +1,800 @@
+{% extends "base.html" %}
+{% block body %}
+    <!-- 以下内容参考 login.html 的代码规范实现，保留相同的布局与样式 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#eef4ff',
+                100: '#dbe7ff',
+                200: '#bcd2ff',
+                300: '#8eb4ff',
+                400: '#598bff',
+                500: '#3366ff',
+                600: '#1f47e6',
+                700: '#1a37b8',
+                800: '#1a3191',
+                900: '#1b2f74'
+              },
+              ink: {
+                900: '#0b1220',
+                700: '#1f2937',
+                500: '#4b5563',
+                400: '#6b7280'
+              }
+            },
+            fontFamily: {
+              sans: ['"PingFang SC"', '"Microsoft YaHei"', 'system-ui', 'sans-serif']
+            },
+            boxShadow: {
+              soft: '0 8px 30px rgba(15, 23, 42, 0.06)',
+              glow: '0 20px 60px rgba(51, 102, 255, 0.18)'
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        background-color: #f5f7fb;
+      }
+
+      .grid-bg {
+        background-image:
+          radial-gradient(circle at 20% 20%, rgba(51, 102, 255, 0.18), transparent 45%),
+          radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.16), transparent 50%),
+          linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+        background-size: auto, auto, 44px 44px, 44px 44px;
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+      }
+
+      .input-field {
+        width: 100%;
+        height: 52px;
+        border-radius: 14px;
+        border: 1px solid #e5e9f2;
+        background-color: #f8fafc;
+        padding-left: 46px;
+        padding-right: 46px;
+        font-size: 14px;
+        color: #0b1220;
+        outline: none;
+        transition: all .2s ease;
+      }
+
+      .input-field::placeholder {
+        color: #9aa4b2;
+      }
+
+      .input-field:focus {
+        border-color: #3366ff;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(51, 102, 255, 0.12);
+      }
+
+      .input-field.is-error {
+        border-color: #ef4444;
+        background-color: #fef2f2;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.10);
+      }
+
+      .btn-primary {
+        width: 100%;
+        height: 52px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #3366ff 0%, #5b3df5 100%);
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        border: none;
+        cursor: pointer;
+        transition: all .25s ease;
+        box-shadow: 0 12px 28px rgba(51, 102, 255, 0.28);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 34px rgba(51, 102, 255, 0.36);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary:disabled {
+        opacity: .7;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .modal-mask {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 18, 32, 0.55);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-mask.hidden {
+        display: none;
+      }
+
+      .modal-card {
+        width: 100%;
+        max-width: 380px;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 28px 24px;
+        box-shadow: 0 30px 80px rgba(11, 18, 32, 0.25);
+        text-align: center;
+      }
+
+      .fade-in {
+        animation: fadeIn .25s ease both;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .float-slow {
+        animation: floatY 6s ease-in-out infinite;
+      }
+
+      @keyframes floatY {
+        0%, 100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+
+      .float-slower {
+        animation: floatY 8s ease-in-out infinite;
+      }
+    </style>
+
+    <style>
+      /* 新增动画定义 */
+      @keyframes yt_modalFadeOut {
+        from {
+          opacity: 1;
+        }
+
+        to {
+          opacity: 0;
+        }
+      }
+    </style>
+
+    <div class="min-h-screen w-full flex flex-col lg:flex-row">
+
+      <section class="relative w-full lg:w-1/2 xl:w-[55%] bg-ink-900 grid-bg overflow-hidden flex flex-col justify-between px-8 py-10 lg:px-14 lg:py-12">
+
+        <div class="pointer-events-none absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand-500/30 blur-3xl"></div>
+
+
+        <div class="pointer-events-none absolute bottom-0 right-0 w-96 h-96 rounded-full bg-purple-500/20 blur-3xl"></div>
+
+
+        <div class="relative z-10 flex items-center gap-3">
+
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-400 to-purple-500 flex items-center justify-center shadow-glow">
+
+            <i class="fas fa-robot text-white text-lg"></i>
+          </div>
+
+
+          <div class="flex flex-col">
+
+            <span class="text-white font-semibold text-base tracking-wide">
+
+              TB YAgenticBaseWeb
+            </span>
+
+
+            <span class="text-white/50 text-xs tracking-widest">
+
+              AGENTIC WORKBENCH
+            </span>
+          </div>
+        </div>
+
+        <div class="relative z-10 flex flex-col gap-6 max-w-xl">
+
+          <div class="inline-flex items-center gap-2 self-start px-3 py-1.5 rounded-full glass">
+
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+
+
+            <span class="text-white/80 text-xs tracking-wide">
+
+              智能体工作台 · 全新上线
+            </span>
+          </div>
+
+
+          <h1 class="text-white text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight tracking-tight">
+
+            <span>
+
+
+              让每一个智能体
+            </span>
+
+
+            <br>
+
+
+            <span class="bg-gradient-to-r from-brand-300 via-brand-200 to-purple-300 bg-clip-text text-transparent">
+
+              都成为你的生产力
+            </span>
+          </h1>
+
+          <p class="text-white/60 text-sm lg:text-base leading-relaxed max-w-md">
+
+
+            统一编排、可视化调试、一键发布。TB YAgenticBaseWeb 为团队提供从构建到运营的一站式智能体工作台。
+          </p>
+
+
+          <div class="flex flex-wrap gap-3 pt-2">
+
+            <div class="flex items-center gap-2 px-3 py-2 rounded-xl glass">
+
+              <i class="fas fa-bolt text-brand-300 text-xs"></i>
+
+
+              <span class="text-white/80 text-xs">
+
+                极速编排
+              </span>
+            </div>
+
+
+            <div class="flex items-center gap-2 px-3 py-2 rounded-xl glass">
+
+              <i class="fas fa-shield-halved text-brand-300 text-xs"></i>
+
+
+              <span class="text-white/80 text-xs">
+
+                安全可控
+              </span>
+            </div>
+
+
+            <div class="flex items-center gap-2 px-3 py-2 rounded-xl glass">
+
+              <i class="fas fa-diagram-project text-brand-300 text-xs"></i>
+
+
+              <span class="text-white/80 text-xs">
+
+                多智能体协同
+              </span>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="relative z-10 flex items-end justify-between gap-6">
+
+          <div class="hidden lg:block w-56 xl:w-64 float-slow">
+
+            <img src="https://design.gemcoder.com/api/searchImage?query=futuristic AI robot assistant illustration with glowing blue neural network lines, dark navy background, flat modern vector style, minimal tech aesthetic&amp;width=520&amp;height=520" alt="智能体插画" class="w-full h-full object-cover rounded-2xl opacity-90">
+          </div>
+
+
+          <div class="hidden xl:block w-40 float-slower">
+
+            <img src="https://design.gemcoder.com/api/searchImage?query=abstract glowing data cube with purple and blue gradient, dark background, minimal 3d render style, tech decoration&amp;width=360&amp;height=360" alt="装饰插画" class="w-full h-full object-cover rounded-2xl opacity-80">
+          </div>
+
+
+          <p class="text-white/40 text-xs tracking-wide">
+
+            © 2025 TB YAgenticBaseWeb
+          </p>
+        </div>
+      </section>
+
+
+      <section class="w-full lg:w-1/2 xl:w-[45%] flex items-center justify-center px-6 py-12 lg:px-12">
+
+        <div class="w-full max-w-md flex flex-col gap-8">
+
+          <div class="flex lg:hidden items-center gap-3" style="">
+
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-500 flex items-center justify-center">
+
+              <i class="fas fa-robot text-white"></i>
+            </div>
+
+
+            <span class="text-ink-900 font-semibold text-base">
+
+              TB YAgenticBaseWeb
+            </span>
+          </div>
+
+
+          <div class="flex flex-col gap-2">
+
+            <h2 class="text-ink-900 text-2xl lg:text-3xl font-bold tracking-tight">
+
+              创建账号 ✨
+            </h2>
+
+
+            <p class="text-ink-400 text-sm">
+
+              注册后即可开始使用智能体工作台
+            </p>
+          </div>
+
+
+          <form id="registerForm" class="flex flex-col gap-5" novalidate="" action="/auth/register" method="post">
+            {% module xsrf_form_html() %}
+
+            <div class="flex flex-col gap-2">
+
+              <label for="username" class="text-ink-700 text-sm font-medium">
+
+                用户名
+              </label>
+
+
+              <div class="relative">
+
+                <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-ink-400 text-sm"></i>
+
+
+                <input id="username" name="username" type="text" autocomplete="username" placeholder="请输入用户名" class="input-field">
+              </div>
+
+
+              <p id="usernameError" class="text-red-500 text-xs flex items-center gap-1 hidden">
+
+                <i class="fas fa-circle-exclamation"></i>
+
+
+                <span>
+
+                  请输入用户名
+                </span>
+              </p>
+            </div>
+
+
+            <div class="flex flex-col gap-2">
+
+              <label for="password" class="text-ink-700 text-sm font-medium">
+
+                密码
+              </label>
+
+
+              <div class="relative">
+
+                <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-ink-400 text-sm"></i>
+
+
+                <input id="password" name="password" type="password" autocomplete="new-password" placeholder="请输入密码（至少 6 位）" class="input-field">
+
+
+                <button id="togglePassword" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-ink-400 hover:text-brand-500 transition-colors">
+
+                  <i id="togglePasswordIcon" class="fas fa-eye text-sm"></i>
+                </button>
+              </div>
+
+
+              <p id="passwordError" class="text-red-500 text-xs flex items-center gap-1 hidden">
+
+                <i class="fas fa-circle-exclamation"></i>
+
+
+                <span>
+
+                  请输入密码
+                </span>
+              </p>
+            </div>
+
+
+            <div class="flex flex-col gap-2">
+
+              <label for="password2" class="text-ink-700 text-sm font-medium">
+
+                确认密码
+              </label>
+
+
+              <div class="relative">
+
+                <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-ink-400 text-sm"></i>
+
+
+                <input id="password2" name="password2" type="password" autocomplete="new-password" placeholder="请再次输入密码" class="input-field">
+              </div>
+
+
+              <p id="password2Error" class="text-red-500 text-xs flex items-center gap-1 hidden">
+
+                <i class="fas fa-circle-exclamation"></i>
+
+
+                <span>
+
+                  请再次输入密码
+                </span>
+              </p>
+            </div>
+
+
+            <button id="registerBtn" type="button" class="btn-primary">
+
+
+              注 册
+            </button>
+
+
+            <div class="flex items-center justify-center gap-1 text-xs">
+
+              <span class="text-ink-400">
+
+                已有账号？
+              </span>
+
+
+              <a id="loginLink" href="/auth/login" class="text-brand-500 hover:text-brand-600 transition-colors">
+
+                返回登录
+              </a>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+
+    <div id="successMask" class="modal-mask hidden">
+
+      <div id="successModal" class="modal-card fade-in">
+
+        <div class="flex flex-col items-center gap-4">
+
+          <div class="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
+
+            <i class="fas fa-check text-emerald-500 text-xl"></i>
+          </div>
+
+
+          <div class="flex flex-col gap-1">
+
+            <h3 class="text-ink-900 text-lg font-semibold">
+
+              注册成功
+            </h3>
+
+
+            <p class="text-ink-400 text-sm">
+
+              正在前往登录页面...
+            </p>
+          </div>
+
+
+          <button id="successCloseBtn" type="button" class="btn-primary">
+
+
+            去登录
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    {% if error %}
+    <div id="errorMask" class="modal-mask">
+    {% else %}
+    <div id="errorMask" class="modal-mask hidden">
+    {% end %}
+      <div id="errorModal" class="modal-card fade-in">
+
+        <div class="flex flex-col items-center gap-4">
+
+          <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+
+            <i class="fas fa-xmark text-red-500 text-xl"></i>
+          </div>
+
+
+          <div class="flex flex-col gap-1">
+
+            <h3 class="text-ink-900 text-lg font-semibold">
+
+              注册失败
+            </h3>
+
+
+            <p id="errorMessage" class="text-ink-400 text-sm">
+              {{ error or "注册失败，请重试" }}
+            </p>
+          </div>
+
+
+          <button id="errorCloseBtn" type="button" class="btn-primary">
+
+
+            我知道了
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <script id="togglePasswordVisibility">
+      function togglePasswordVisibility(event) {
+        var input = document.getElementById('password');
+        var icon = document.getElementById('togglePasswordIcon');
+        if (!input || !icon) return;
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      }
+    </script>
+
+
+    <script id="handleRegister">
+      function handleRegister(event) {
+        if (event && typeof event.preventDefault === 'function') {
+          event.preventDefault();
+        }
+        var registerForm = document.getElementById('registerForm');
+        var registerBtn = document.getElementById('registerBtn');
+        var usernameInput = document.getElementById('username');
+        var passwordInput = document.getElementById('password');
+        var password2Input = document.getElementById('password2');
+        var usernameError = document.getElementById('usernameError');
+        var passwordError = document.getElementById('passwordError');
+        var password2Error = document.getElementById('password2Error');
+        var successMask = document.getElementById('successMask');
+        var errorMask = document.getElementById('errorMask');
+        var errorMessage = document.getElementById('errorMessage');
+
+        var username = usernameInput ? usernameInput.value.trim() : '';
+        var password = passwordInput ? passwordInput.value.trim() : '';
+        var password2 = password2Input ? password2Input.value.trim() : '';
+        var valid = true;
+
+        // 重置错误状态
+        [usernameInput, passwordInput, password2Input].forEach(function (el) {
+          if (el) el.classList.remove('is-error');
+        });
+        [usernameError, passwordError, password2Error].forEach(function (el) {
+          if (el) el.classList.add('hidden');
+        });
+        // 恢复错误提示默认文案
+        if (passwordError) {
+          var pSpan = passwordError.querySelector('span');
+          if (pSpan) pSpan.textContent = '请输入密码';
+        }
+        if (password2Error) {
+          var p2Span = password2Error.querySelector('span');
+          if (p2Span) p2Span.textContent = '请再次输入密码';
+        }
+        // 校验用户名
+        if (!username) {
+          valid = false;
+          if (usernameInput) usernameInput.classList.add('is-error');
+          if (usernameError) usernameError.classList.remove('hidden');
+        }
+        // 校验密码
+        if (!password) {
+          valid = false;
+          if (passwordInput) passwordInput.classList.add('is-error');
+          if (passwordError) passwordError.classList.remove('hidden');
+        } else if (password.length < 6) {
+          valid = false;
+          if (passwordInput) passwordInput.classList.add('is-error');
+          if (passwordError) {
+            passwordError.classList.remove('hidden');
+            var span = passwordError.querySelector('span');
+            if (span) span.textContent = '密码长度至少 6 位';
+          }
+        }
+        // 校验确认密码
+        if (!password2) {
+          valid = false;
+          if (password2Input) password2Input.classList.add('is-error');
+          if (password2Error) password2Error.classList.remove('hidden');
+        } else if (password2 !== password) {
+          valid = false;
+          if (password2Input) password2Input.classList.add('is-error');
+          if (password2Error) {
+            password2Error.classList.remove('hidden');
+            var span2 = password2Error.querySelector('span');
+            if (span2) span2.textContent = '两次输入的密码不一致';
+          }
+        }
+        if (!valid) return;
+        // 提交到后端 /auth/register，依据响应展示成功/失败弹窗
+        if (registerForm) {
+          var formData = new FormData(registerForm);
+          formData.set('username', username);
+          formData.set('password', password);
+          formData.set('password2', password2);
+          if (registerBtn) {
+            registerBtn.disabled = true;
+            registerBtn.textContent = '注 册 中...';
+          }
+          fetch('/auth/register', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+          }).then(function(resp) {
+            // 注册成功后，后端会 302 跳转到 /auth/login，fetch 跟随跳转后 resp.redirected 为 true
+            if (resp.redirected) {
+              if (successMask) successMask.classList.remove('hidden');
+            } else {
+              // 注册失败：后端重新渲染 register.html，其中 #errorMessage 含错误信息
+              return resp.text().then(function(html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var msgEl = doc.getElementById('errorMessage');
+                var msg = (msgEl && msgEl.textContent) ? msgEl.textContent.trim() : '注册失败，请重试';
+                if (errorMessage) errorMessage.textContent = msg;
+                if (errorMask) errorMask.classList.remove('hidden');
+              });
+            }
+          }).catch(function() {
+            // 网络异常时回退为传统表单提交（由后端处理跳转或重渲染）
+            if (registerForm) registerForm.submit();
+          }).then(function() {
+            if (registerBtn) {
+              registerBtn.disabled = false;
+              registerBtn.textContent = '注 册';
+            }
+          });
+        }
+      }
+    </script>
+
+    <script></script>
+    <script>
+      window.ytHandles = {
+        //关闭id为targetId的目标容器
+        hide: function(targetId) {
+          const modal = document.getElementById(targetId); //获取targetId的元素
+          // 检查targetId元素是否存在
+          if (!modal) {
+            console.error('Modal element not found: targetId');
+            return;
+          }
+
+          //1. 准备隐藏前先清理旧动画和监听器
+          if (modal._hideTimeout) clearTimeout(modal._hideTimeout);
+          if (modal._showAnimationEndHandler) {
+            modal.removeEventListener("animationend", modal._showAnimationEndHandler);
+            delete modal._showAnimationEndHandler;
+          }
+          modal.style.animation = "";
+          // 2. 强制重绘以确保样式应用
+          void modal.offsetHeight;
+          // 3. 启动淡出动画
+          modal.style.animation = 'yt_modalFadeOut 0.3s ease-out';
+          let animationCompleted = false;
+          const onAnimationEnd = function() {
+            if (animationCompleted) return;
+            animationCompleted = true;
+            // 4. 动画结束后，添加隐藏类并清空所有内联干扰样式
+            modal.classList.add("hidden");
+            modal.style.display = "";
+            modal.style.visibility = "";
+            modal.style.opacity = "";
+            modal.style.animation = "";
+            modal.style.transform = "";
+            // 清理引用
+            delete modal._hideAnimationEndHandler;
+            if (modal._hideTimeout) {
+              clearTimeout(modal._hideTimeout);
+              delete modal._hideTimeout;
+            }
+          };
+          // 5. 使用事件监听 + 定时器双重保险，确保清理逻辑一定会执行
+          modal._hideAnimationEndHandler = onAnimationEnd;
+          modal.addEventListener("animationend", onAnimationEnd, {
+            once: true
+          });
+          modal._hideTimeout = setTimeout(onAnimationEnd, 400); // 略长于动画时间
+
+        }
+      };
+
+      window.onload = function() {
+        try {
+          //为#togglePassword元素添加click事件监听器
+          let _el = document.getElementById(`togglePassword`);
+          if (_el) {
+            _el.addEventListener('click', function(event) {
+              togglePasswordVisibility(event);
+            })
+          }
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+        try {
+          //为#registerBtn元素添加click事件监听器
+          let _el = document.getElementById(`registerBtn`);
+          if (_el) {
+            _el.addEventListener('click', function(event) {
+              handleRegister(event);
+            })
+          }
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+        try {
+          //为#successCloseBtn元素添加click事件监听器：跳转至登录页
+          let _el = document.getElementById(`successCloseBtn`);
+          if (_el) {
+            _el.addEventListener('click', function(event) {
+              window.location.href = '/auth/login';
+            })
+          }
+        } catch (e) {
+          console.error('CloseModal error:', e);
+        }
+        try {
+          //为#errorCloseBtn元素添加click事件监听器
+          let _el = document.getElementById(`errorCloseBtn`);
+          if (_el) {
+            _el.addEventListener('click', function(event) {
+              ytHandles.hide('errorMask');
+            })
+          }
+        } catch (e) {
+          console.error('CloseModal error:', e);
+        }
+      }
+    </script>
+{% end %}

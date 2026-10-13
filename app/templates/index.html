@@ -1,0 +1,734 @@
+{% extends "base.html" %}
+{% block body %}
+    <!-- 以下布局 / 样式由 dist/后台首页.html 原型转换而来；交互逻辑沿用原 index.html（SSE 问答、历史、登出） -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand': '#4F46E5',
+              'brand-light': '#EEF2FF',
+              'brand-dark': '#3730A3',
+              'ink': '#1F2937',
+              'ink-soft': '#6B7280',
+              'canvas': '#F7F8FC',
+              'sidebar': '#FFFFFF',
+            },
+            spacing: {
+              '4.5': '1.125rem',
+              '13': '3.25rem',
+              '18': '4.5rem',
+              '22': '5.5rem',
+            },
+            boxShadow: {
+              'soft': '0 8px 30px rgba(0,0,0,0.04)',
+              'softer': '0 4px 20px rgba(79,70,229,0.08)',
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #E5E7EB;
+        border-radius: 999px;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: #D1D5DB;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .typing-dot {
+        animation: typing 1.2s infinite ease-in-out;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes typing {
+        0%, 60%, 100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+
+        30% {
+          transform: translateY(-4px);
+          opacity: 1;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.35s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+
+    <div class="flex h-screen w-full overflow-hidden bg-canvas text-ink">
+
+      <aside class="w-72 shrink-0 bg-sidebar border-r border-gray-100 flex flex-col h-full">
+
+        <div class="h-18 flex items-center gap-3 px-5 border-b border-gray-100">
+
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center shadow-softer">
+
+            <i class="fas fa-robot text-white text-lg"></i>
+          </div>
+
+
+          <div class="flex flex-col">
+
+            <span class="text-[15px] font-semibold tracking-tight">
+
+              TBY Agentic
+            </span>
+
+
+            <span class="text-[11px] text-ink-soft">
+
+              智能体工作台
+            </span>
+          </div>
+        </div>
+
+
+        <div class="px-4 pt-4">
+
+          <button type="button" id="btn-new-chat" class="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-brand text-white text-sm font-medium hover:bg-brand-dark transition-colors shadow-softer">
+
+            <i class="fas fa-plus text-xs"></i>
+
+
+            <span>
+
+              新建对话
+            </span>
+          </button>
+        </div>
+
+
+        <div class="flex-1 flex flex-col overflow-hidden px-3 pt-5">
+
+          <div class="flex items-center justify-between px-2 pb-2">
+
+            <span class="text-[11px] font-semibold text-ink-soft tracking-wider uppercase">
+
+              当前会话
+            </span>
+
+
+            <span class="text-ink-soft" title="会话">
+
+              <i class="fas fa-comment-dots text-xs"></i>
+            </span>
+          </div>
+
+
+          <div class="flex-1 overflow-y-auto scrollbar-thin flex flex-col gap-1 pr-1">
+
+            <div class="group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-brand-light text-brand-dark">
+
+              <i class="fas fa-comment-dots text-xs"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                与「旅行规划师」的对话
+              </span>
+            </div>
+
+
+            <div class="px-3 pt-3 text-[11px] text-ink-soft leading-relaxed">
+
+              历史消息会显示在右侧对话区，发送新消息后自动保存。
+            </div>
+          </div>
+        </div>
+
+
+        <div class="px-4 pb-4 pt-3 border-t border-gray-100">
+
+          <div class="rounded-xl bg-gradient-to-br from-brand-light to-white p-3.5 flex flex-col gap-2.5">
+
+            <div class="flex items-center gap-2">
+
+              <i class="fas fa-lightbulb text-brand text-xs"></i>
+
+
+              <span class="text-[12px] font-semibold text-brand-dark">
+
+                操作提示
+              </span>
+            </div>
+
+
+            <div class="flex flex-col gap-1.5 text-[11px] text-ink-soft leading-relaxed">
+
+              <div class="flex items-start gap-1.5">
+
+                <span class="text-brand mt-0.5">
+
+                  •
+                </span>
+
+
+                <span>
+
+                  <span>
+
+                    输入
+                  </span>
+
+
+                  <kbd class="px-1 py-0.5 bg-white rounded border border-gray-200 text-[10px]">
+
+                    Enter
+                  </kbd>
+
+
+                  <span>
+
+                    发送消息
+                  </span>
+                </span>
+              </div>
+
+
+              <div class="flex items-start gap-1.5">
+
+                <span class="text-brand mt-0.5">
+
+                  •
+                </span>
+
+
+                <span>
+
+                  <kbd class="px-1 py-0.5 bg-white rounded border border-gray-200 text-[10px]">
+
+                    Shift
+                  </kbd>
+
+
+                  <span>
+
+                    +
+                  </span>
+
+
+                  <kbd class="px-1 py-0.5 bg-white rounded border border-gray-200 text-[10px]">
+
+                    Enter
+                  </kbd>
+
+
+                  <span>
+
+                    换行
+                  </span>
+                </span>
+              </div>
+
+
+              <div class="flex items-start gap-1.5">
+
+                <span class="text-brand mt-0.5">
+
+                  •
+                </span>
+
+
+                <span>
+
+                  对话内容自动保存，刷新后仍可查看
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+
+      <main class="flex-1 flex flex-col h-full min-w-0">
+
+        <header class="h-18 shrink-0 bg-white/80 backdrop-blur border-b border-gray-100 flex items-center justify-between px-6">
+
+          <div class="flex items-center gap-3">
+
+            <div class="w-8 h-8 rounded-lg bg-brand-light flex items-center justify-center">
+
+              <i class="fas fa-comment-dots text-brand text-sm"></i>
+            </div>
+
+
+            <div class="flex flex-col">
+
+              <span class="text-[14px] font-semibold">
+
+                旅行规划师
+              </span>
+
+
+              <span class="text-[11px] text-ink-soft flex items-center gap-1.5">
+
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+
+
+                <span>
+
+                  在线 · Agentica
+                </span>
+              </span>
+            </div>
+          </div>
+
+
+          <div class="flex items-center gap-2">
+
+            <form method="post" action="/auth/logout" class="flex items-center">
+              {% module xsrf_form_html() %}
+              <button type="submit" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="退出登录">
+
+                <i class="fas fa-right-from-bracket text-sm"></i>
+              </button>
+            </form>
+
+
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xs font-semibold" title="{{ username }}">
+
+              {{ (username or "U")[:1].upper() }}
+            </div>
+          </div>
+        </header>
+
+
+        <section id="chat" class="flex-1 overflow-y-auto scrollbar-thin px-6 py-8">
+
+          <div id="chatList" class="max-w-3xl mx-auto flex flex-col gap-6">
+
+            <div id="welcome" class="fade-in flex flex-col items-center gap-4 py-6">
+
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center shadow-softer">
+
+                <i class="fas fa-robot text-white text-2xl"></i>
+              </div>
+
+
+              <div class="flex flex-col items-center gap-1.5">
+
+                <h1 class="text-xl font-semibold tracking-tight">
+
+                  你好，我是你的旅行规划师
+                </h1>
+
+
+                <p class="text-[13px] text-ink-soft">
+
+                  告诉我目的地与偏好，我来帮你规划行程、预算与美食
+                </p>
+              </div>
+
+
+              <div class="grid grid-cols-2 gap-3 w-full pt-2">
+
+                <button type="button" class="js-suggest text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5" data-text="规划三天的成都亲子游，预算 3000 元">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-map-location-dot text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      规划成都亲子游
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    规划三天的成都亲子游，预算 3000 元
+                  </span>
+                </button>
+
+
+                <button type="button" class="js-suggest text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5" data-text="推荐一条云南七日游经典路线">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-route text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      云南七日游路线
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    推荐一条云南七日游经典路线
+                  </span>
+                </button>
+
+
+                <button type="button" class="js-suggest text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5" data-text="制定一个适合自驾的周末周边游方案">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-car-side text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      周末周边自驾游
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    制定一个适合自驾的周末周边游方案
+                  </span>
+                </button>
+
+
+                <button type="button" class="js-suggest text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5" data-text="帮我查一下成都未来三天的天气">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-cloud-sun text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      查询目的地天气
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    帮我查一下成都未来三天的天气
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <div class="shrink-0 px-6 pb-5 pt-2 bg-gradient-to-t from-canvas via-canvas to-transparent">
+
+          <div class="max-w-3xl mx-auto">
+
+            <form id="chatForm">
+              {% module xsrf_form_html() %}
+              <div class="rounded-2xl bg-white border border-gray-200 shadow-soft focus-within:border-brand focus-within:shadow-softer transition-all">
+
+                <div class="flex items-end gap-2 px-3 py-2.5">
+
+                  <span class="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-ink-soft" title="附件（暂未开放）">
+
+                    <i class="fas fa-paperclip text-sm"></i>
+                  </span>
+
+
+                  <textarea id="chat-input" rows="1" placeholder="输入消息，Enter 发送，Shift + Enter 换行..." class="flex-1 resize-none bg-transparent outline-none text-[13.5px] leading-relaxed py-2 max-h-32 scrollbar-thin placeholder:text-gray-400"></textarea>
+
+
+                  <button type="submit" id="btn-send" class="w-9 h-9 shrink-0 rounded-lg bg-brand hover:bg-brand-dark flex items-center justify-center text-white transition-colors shadow-softer" title="发送">
+
+                    <i class="fas fa-paper-plane text-sm"></i>
+                  </button>
+                </div>
+
+
+                <div class="flex items-center justify-between px-4 pb-2.5 pt-0">
+
+                  <div class="flex items-center gap-2">
+
+                    <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-50 text-[11px] text-ink-soft">
+
+                      <i class="fas fa-microchip text-[10px]"></i>
+
+
+                      <span>
+
+                        旅行规划师
+                      </span>
+                    </span>
+                  </div>
+
+
+                  <span class="text-[10px] text-gray-400">
+
+                    内容由 AI 生成，请仔细甄别
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+
+
+    <template id="tpl-user">
+      <div class="fade-in flex justify-end gap-3">
+
+        <div class="msg-content max-w-[80%] rounded-2xl rounded-tr-sm bg-brand text-white px-4 py-3 text-[13.5px] leading-relaxed shadow-softer whitespace-pre-wrap"></div>
+
+
+        <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xs font-semibold">
+
+          {{ (username or "U")[:1].upper() }}
+        </div>
+      </div>
+    </template>
+
+
+    <template id="tpl-bot">
+      <div class="fade-in flex gap-3">
+
+        <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center">
+
+          <i class="fas fa-robot text-white text-xs"></i>
+        </div>
+
+
+        <div class="msg-content max-w-[80%] rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-[13.5px] leading-relaxed shadow-soft whitespace-pre-wrap"></div>
+      </div>
+    </template>
+
+
+    <script id="chatFunctions">
+      const xsrf = document.querySelector('#chatForm input[name="_xsrf"]').value;
+      const chatEl = document.getElementById("chat");
+      const chatList = document.getElementById("chatList");
+      const formEl = document.getElementById("chatForm");
+      const inputEl = document.getElementById("chat-input");
+      const sendBtn = document.getElementById("btn-send");
+
+      // 滚动对话区到底部
+      function scrollToBottom() {
+        chatEl.scrollTop = chatEl.scrollHeight;
+      }
+
+      // 有消息后隐藏欢迎区（保留 DOM，便于「新建对话」恢复）
+      function hideWelcome() {
+        const el = document.getElementById("welcome");
+        if (el) {
+          el.classList.add("hidden");
+        }
+      }
+
+      // 追加一条消息气泡，返回内容元素（供流式更新）
+      function addMessage(role, text) {
+        hideWelcome();
+        const tpl = document.getElementById(role === 'user' ? 'tpl-user' : 'tpl-bot');
+        const node = tpl.content.firstElementChild.cloneNode(true);
+        const content = node.querySelector('.msg-content');
+        content.textContent = text || '';
+        chatList.appendChild(node);
+        scrollToBottom();
+        return content;
+      }
+
+      // 发送消息：POST /api/chat，按 SSE 增量渲染
+      async function send(text) {
+        addMessage('user', text);
+        const line = addMessage('assistant', '');
+        let answer = "";
+        const resp = await fetch('/api/chat', {
+          method: 'post',
+          headers: { 'Content-Type': 'application/json', 'X-XSRFToken': xsrf },
+          body: JSON.stringify({ message: text })
+        });
+        if (resp.status == 401) {
+          location.href = "/auth/login";
+          return;
+        }
+        if (!resp.ok) {
+          line.textContent = `请求失败 (HTTP ${resp.status})`;
+          return;
+        }
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+          buf += decoder.decode(value, { stream: true });
+          const blocks = buf.split("\n\n");
+          buf = blocks.pop();
+          for (const block of blocks) {
+            const ev = (block.match(/^event: (.+)$/m) || [])[1];
+            const dataLine = block.split("\n").find(function (l) { return l.indexOf('data:') == 0; });
+            if (!ev || !dataLine) continue;
+            const data = JSON.parse(dataLine.slice(5).trim());
+            if (ev === 'delta') {
+              answer += data.text;
+              line.textContent = answer;
+              scrollToBottom();
+            } else if (ev === 'error') {
+              line.textContent = '出错了 ' + data.message;
+            }
+            // 其余事件（tool、done 等）可在此完善业务逻辑。
+          }
+        }
+      }
+
+      // 提交表单（点击发送按钮 / Enter）
+      function handleSend(event) {
+        if (event && typeof event.preventDefault === 'function') {
+          event.preventDefault();
+        }
+        const text = inputEl.value.trim();
+        if (!text) {
+          return;
+        }
+        inputEl.value = '';
+        sendBtn.disabled = true;
+        send(text).catch(function (e) {
+          chatList.appendChild(document.createTextNode("请求异常：" + e.message));
+        }).finally(function () {
+          sendBtn.disabled = false;
+          inputEl.focus();
+        });
+      }
+
+      // 新建对话：清空消息气泡并恢复欢迎区
+      function handleNewChat(event) {
+        Array.prototype.slice.call(chatList.children).forEach(function (child) {
+          if (child.id !== 'welcome') {
+            child.remove();
+          }
+        });
+        const welcome = document.getElementById('welcome');
+        if (welcome) {
+          welcome.classList.remove('hidden');
+        }
+        inputEl.value = '';
+        inputEl.focus();
+      }
+    </script>
+
+
+    <script id="loadHistory">
+      // 打开页面时加载历史记录
+      (async function loadHistory() {
+        try {
+          const resp = await fetch('/api/history?limit=50');
+          if (resp.status === 401) {
+            location.href = "/auth/login";
+            return;
+          }
+          const data = await resp.json();
+          if (!data.messages.length) {
+            return;
+          }
+          hideWelcome();
+          for (const m of data.messages) {
+            addMessage(m.role === 'user' ? 'user' : 'assistant', m.content);
+          }
+        } catch (e) {
+          // 加载失败时保留欢迎区，不阻塞页面
+          console.error("历史记录加载失败：" + e.message);
+        }
+      })();
+    </script>
+
+
+    <script>
+      window.onload = function() {
+        try {
+          //为#btn-new-chat元素添加click事件监听器
+          let _el = document.getElementById('btn-new-chat');
+          if (_el) {
+            _el.addEventListener('click', function(event) {
+              handleNewChat(event);
+            })
+          }
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+        try {
+          //为#chatForm元素添加submit事件监听器
+          let _el = document.getElementById('chatForm');
+          if (_el) {
+            _el.addEventListener('submit', function(event) {
+              handleSend(event);
+            })
+          }
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+        try {
+          //为#chat-input元素添加keydown事件监听器：Enter 发送，Shift+Enter 换行
+          let _el = document.getElementById('chat-input');
+          if (_el) {
+            _el.addEventListener('keydown', function(event) {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                handleSend(event);
+              }
+            })
+          }
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+        try {
+          //为建议卡片添加click事件监听器：点击后填入输入框
+          let _els = document.querySelectorAll('.js-suggest');
+          _els.forEach(function(el) {
+            el.addEventListener('click', function() {
+              const text = el.getAttribute('data-text') || '';
+              inputEl.value = text;
+              inputEl.focus();
+            })
+          })
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+      }
+    </script>
+{% end %}

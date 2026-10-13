@@ -1,0 +1,1011 @@
+<html lang="zh-CN">
+
+  <head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能体工作台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand': '#4F46E5',
+              'brand-light': '#EEF2FF',
+              'brand-dark': '#3730A3',
+              'ink': '#1F2937',
+              'ink-soft': '#6B7280',
+              'canvas': '#F7F8FC',
+              'sidebar': '#FFFFFF',
+            },
+            spacing: {
+              '4.5': '1.125rem',
+              '13': '3.25rem',
+              '18': '4.5rem',
+              '22': '5.5rem',
+            },
+            boxShadow: {
+              'soft': '0 8px 30px rgba(0,0,0,0.04)',
+              'softer': '0 4px 20px rgba(79,70,229,0.08)',
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #E5E7EB;
+        border-radius: 999px;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: #D1D5DB;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .modal-mask.hidden {
+        display: none;
+      }
+
+      .modal-panel.hidden {
+        display: none;
+      }
+
+      .drawer-panel.hidden {
+        display: none;
+      }
+
+      .drawer-mask.hidden {
+        display: none;
+      }
+
+      .typing-dot {
+        animation: typing 1.2s infinite ease-in-out;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes typing {
+        0%, 60%, 100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+
+        30% {
+          transform: translateY(-4px);
+          opacity: 1;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.35s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+
+    <style></style>
+  </head>
+
+  <body class="bg-canvas text-ink">
+
+
+    <div class="flex h-screen w-full overflow-hidden">
+
+      <aside class="w-72 shrink-0 bg-sidebar border-r border-gray-100 flex flex-col h-full">
+
+        <div class="h-18 flex items-center gap-3 px-5 border-b border-gray-100">
+
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center shadow-softer">
+
+            <i class="fas fa-robot text-white text-lg"></i>
+          </div>
+
+
+          <div class="flex flex-col">
+
+            <span class="text-[15px] font-semibold tracking-tight">
+
+              TBY Agentic
+            </span>
+
+
+            <span class="text-[11px] text-ink-soft">
+
+              智能体工作台
+            </span>
+          </div>
+        </div>
+
+
+        <div class="px-4 pt-4">
+
+          <button type="button" id="btn-new-chat" class="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-brand text-white text-sm font-medium hover:bg-brand-dark transition-colors shadow-softer">
+
+            <i class="fas fa-plus text-xs"></i>
+
+
+            <span>
+
+              新建对话
+            </span>
+          </button>
+        </div>
+
+
+        <div class="flex-1 flex flex-col overflow-hidden px-3 pt-5">
+
+          <div class="flex items-center justify-between px-2 pb-2">
+
+            <span class="text-[11px] font-semibold text-ink-soft tracking-wider uppercase">
+
+              历史会话
+            </span>
+
+
+            <button type="button" class="text-ink-soft hover:text-brand transition-colors" title="搜索">
+
+              <i class="fas fa-magnifying-glass text-xs"></i>
+            </button>
+          </div>
+
+
+          <div class="flex-1 overflow-y-auto scrollbar-thin flex flex-col gap-1 pr-1">
+
+            <div class="text-[11px] text-ink-soft px-2 pt-2 pb-1">
+
+              今天
+            </div>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg bg-brand-light text-brand-dark">
+
+              <i class="fas fa-comment-dots text-xs"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                产品需求文档撰写助手
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] opacity-0 group-hover:opacity-100"></i>
+            </a>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 text-ink transition-colors">
+
+              <i class="fas fa-comment-dots text-xs text-ink-soft"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                帮我分析这份销售数据
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] text-ink-soft opacity-0 group-hover:opacity-100"></i>
+            </a>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 text-ink transition-colors">
+
+              <i class="fas fa-comment-dots text-xs text-ink-soft"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                生成一份周报模板
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] text-ink-soft opacity-0 group-hover:opacity-100"></i>
+            </a>
+
+
+            <div class="text-[11px] text-ink-soft px-2 pt-3 pb-1">
+
+              昨天
+            </div>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 text-ink transition-colors">
+
+              <i class="fas fa-comment-dots text-xs text-ink-soft"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                代码审查与优化建议
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] text-ink-soft opacity-0 group-hover:opacity-100"></i>
+            </a>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 text-ink transition-colors">
+
+              <i class="fas fa-comment-dots text-xs text-ink-soft"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                翻译一段英文技术文档
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] text-ink-soft opacity-0 group-hover:opacity-100"></i>
+            </a>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 text-ink transition-colors">
+
+              <i class="fas fa-comment-dots text-xs text-ink-soft"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                SQL 查询语句优化
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] text-ink-soft opacity-0 group-hover:opacity-100"></i>
+            </a>
+
+
+            <div class="text-[11px] text-ink-soft px-2 pt-3 pb-1">
+
+              更早
+            </div>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 text-ink transition-colors">
+
+              <i class="fas fa-comment-dots text-xs text-ink-soft"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                竞品分析报告框架
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] text-ink-soft opacity-0 group-hover:opacity-100"></i>
+            </a>
+
+
+            <a href="javascript:void(0);" class="group flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 text-ink transition-colors">
+
+              <i class="fas fa-comment-dots text-xs text-ink-soft"></i>
+
+
+              <span class="text-[13px] truncate flex-1">
+
+                营销文案创意头脑风暴
+              </span>
+
+
+              <i class="fas fa-ellipsis text-[10px] text-ink-soft opacity-0 group-hover:opacity-100"></i>
+            </a>
+          </div>
+        </div>
+
+
+        <div class="px-4 pb-4 pt-3 border-t border-gray-100">
+
+          <div class="rounded-xl bg-gradient-to-br from-brand-light to-white p-3.5 flex flex-col gap-2.5">
+
+            <div class="flex items-center gap-2">
+
+              <i class="fas fa-lightbulb text-brand text-xs"></i>
+
+
+              <span class="text-[12px] font-semibold text-brand-dark">
+
+                操作提示
+              </span>
+            </div>
+
+
+            <div class="flex flex-col gap-1.5 text-[11px] text-ink-soft leading-relaxed">
+
+              <div class="flex items-start gap-1.5">
+
+                <span class="text-brand mt-0.5">
+
+                  •
+                </span>
+
+
+                <span>
+
+                  <span>
+
+                    输入
+                  </span>
+
+
+                  <kbd class="px-1 py-0.5 bg-white rounded border border-gray-200 text-[10px]">
+
+                    Enter
+                  </kbd>
+
+
+                  <span>
+
+                    发送消息
+                  </span>
+                </span>
+              </div>
+
+
+              <div class="flex items-start gap-1.5">
+
+                <span class="text-brand mt-0.5">
+
+                  •
+                </span>
+
+
+                <span>
+
+                  <kbd class="px-1 py-0.5 bg-white rounded border border-gray-200 text-[10px]">
+
+                    Shift
+                  </kbd>
+
+
+                  <span>
+
+                    +
+                  </span>
+
+
+                  <kbd class="px-1 py-0.5 bg-white rounded border border-gray-200 text-[10px]">
+
+                    Enter
+                  </kbd>
+
+
+                  <span>
+
+                    换行
+                  </span>
+                </span>
+              </div>
+
+
+              <div class="flex items-start gap-1.5">
+
+                <span class="text-brand mt-0.5">
+
+                  •
+                </span>
+
+
+                <span>
+
+                  点击左侧会话可切换历史对话
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+
+      <main class="flex-1 flex flex-col h-full min-w-0">
+
+        <header class="h-18 shrink-0 bg-white/80 backdrop-blur border-b border-gray-100 flex items-center justify-between px-6">
+
+          <div class="flex items-center gap-3">
+
+            <div class="w-8 h-8 rounded-lg bg-brand-light flex items-center justify-center">
+
+              <i class="fas fa-comment-dots text-brand text-sm"></i>
+            </div>
+
+
+            <div class="flex flex-col">
+
+              <span class="text-[14px] font-semibold">
+
+                产品需求文档撰写助手
+              </span>
+
+
+              <span class="text-[11px] text-ink-soft flex items-center gap-1.5">
+
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+
+
+                <span>
+
+
+                  在线 · GPT-Agent v2.1
+
+                </span>
+              </span>
+            </div>
+          </div>
+
+
+          <div class="flex items-center gap-2">
+
+            <button type="button" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="分享">
+
+              <i class="fas fa-share-nodes text-sm"></i>
+            </button>
+
+
+            <button type="button" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="设置">
+
+              <i class="fas fa-gear text-sm"></i>
+            </button>
+
+
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xs font-semibold">
+
+
+              U
+
+            </div>
+          </div>
+        </header>
+
+
+        <section class="flex-1 overflow-y-auto scrollbar-thin px-6 py-8">
+
+          <div class="max-w-3xl mx-auto flex flex-col gap-6">
+
+            <div class="fade-in flex flex-col items-center gap-4 py-6">
+
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center shadow-softer">
+
+                <i class="fas fa-robot text-white text-2xl"></i>
+              </div>
+
+
+              <div class="flex flex-col items-center gap-1.5">
+
+                <h1 class="text-xl font-semibold tracking-tight">
+
+                  你好，我是你的智能体助手
+                </h1>
+
+
+                <p class="text-[13px] text-ink-soft">
+
+                  我可以帮你撰写文档、分析数据、编写代码，随时开始对话吧
+                </p>
+              </div>
+
+
+              <div class="grid grid-cols-2 gap-3 w-full pt-2">
+
+                <button type="button" class="text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-file-lines text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      撰写产品需求文档
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    帮我生成一份完整的产品需求文档
+                  </span>
+                </button>
+
+
+                <button type="button" class="text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-chart-line text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      分析销售数据
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    上传数据并生成可视化分析报告
+                  </span>
+                </button>
+
+
+                <button type="button" class="text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-code text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      代码审查优化
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    粘贴代码，获取优化建议
+                  </span>
+                </button>
+
+
+                <button type="button" class="text-left p-4 rounded-xl bg-white border border-gray-100 hover:border-brand hover:shadow-soft transition-all flex flex-col gap-1.5">
+
+                  <div class="flex items-center gap-2 text-brand">
+
+                    <i class="fas fa-language text-sm"></i>
+
+
+                    <span class="text-[13px] font-medium">
+
+                      翻译技术文档
+                    </span>
+                  </div>
+
+
+                  <span class="text-[11px] text-ink-soft">
+
+                    中英互译，保留专业术语
+                  </span>
+                </button>
+              </div>
+            </div>
+
+
+            <div class="fade-in flex justify-end gap-3">
+
+              <div class="max-w-[80%] rounded-2xl rounded-tr-sm bg-brand text-white px-4 py-3 text-[13.5px] leading-relaxed shadow-softer">
+
+
+                帮我写一份智能体工作台的产品需求文档，需要包含核心功能模块和交互流程。
+
+              </div>
+
+
+              <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xs font-semibold">
+
+
+                U
+
+              </div>
+            </div>
+
+
+            <div class="fade-in flex gap-3">
+
+              <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center">
+
+                <i class="fas fa-robot text-white text-xs"></i>
+              </div>
+
+
+              <div class="max-w-[80%] flex flex-col gap-2">
+
+                <div class="rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-[13.5px] leading-relaxed shadow-soft">
+
+                  <p class="pb-2">
+
+                    好的，我来为你撰写一份智能体工作台的产品需求文档。以下是核心结构：
+                  </p>
+
+
+                  <div class="flex flex-col gap-1.5 pl-1">
+
+                    <div class="flex items-start gap-2">
+
+                      <span class="text-brand font-semibold text-[13px]">
+
+                        1.
+                      </span>
+
+
+                      <span>
+
+                        <strong>
+
+                          产品概述
+                        </strong>
+
+
+                        ：定义产品定位、目标用户与核心价值
+                      </span>
+                    </div>
+
+
+                    <div class="flex items-start gap-2">
+
+                      <span class="text-brand font-semibold text-[13px]">
+
+                        2.
+                      </span>
+
+
+                      <span>
+
+                        <strong>
+
+                          功能模块
+                        </strong>
+
+
+                        ：对话工作区、历史会话管理、智能体配置
+                      </span>
+                    </div>
+
+
+                    <div class="flex items-start gap-2">
+
+                      <span class="text-brand font-semibold text-[13px]">
+
+                        3.
+                      </span>
+
+
+                      <span>
+
+                        <strong>
+
+                          交互流程
+                        </strong>
+
+
+                        ：用户输入 → 意图识别 → 智能体响应 → 结果展示
+                      </span>
+                    </div>
+
+
+                    <div class="flex items-start gap-2">
+
+                      <span class="text-brand font-semibold text-[13px]">
+
+                        4.
+                      </span>
+
+
+                      <span>
+
+                        <strong>
+
+                          非功能需求
+                        </strong>
+
+
+                        ：响应式设计、流式输出、多端适配
+                      </span>
+                    </div>
+                  </div>
+
+
+                  <p class="pt-2">
+
+                    需要我展开哪个部分？
+                  </p>
+                </div>
+
+
+                <div class="flex items-center gap-1 pl-1">
+
+                  <button type="button" class="w-7 h-7 rounded-md hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="复制">
+
+                    <i class="fas fa-copy text-[11px]"></i>
+                  </button>
+
+
+                  <button type="button" class="w-7 h-7 rounded-md hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="重新生成">
+
+                    <i class="fas fa-rotate-right text-[11px]"></i>
+                  </button>
+
+
+                  <button type="button" class="w-7 h-7 rounded-md hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="点赞">
+
+                    <i class="fas fa-thumbs-up text-[11px]"></i>
+                  </button>
+
+
+                  <button type="button" class="w-7 h-7 rounded-md hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="点踩">
+
+                    <i class="fas fa-thumbs-down text-[11px]"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="fade-in flex justify-end gap-3">
+
+              <div class="max-w-[80%] rounded-2xl rounded-tr-sm bg-brand text-white px-4 py-3 text-[13.5px] leading-relaxed shadow-softer">
+
+
+                展开第 2 部分，功能模块的详细说明。
+
+              </div>
+
+
+              <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white text-xs font-semibold">
+
+
+                U
+
+              </div>
+            </div>
+
+
+            <div class="fade-in flex gap-3">
+
+              <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center">
+
+                <i class="fas fa-robot text-white text-xs"></i>
+              </div>
+
+
+              <div class="max-w-[80%] flex flex-col gap-2">
+
+                <div class="rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 text-[13.5px] leading-relaxed shadow-soft">
+
+                  <p class="pb-2">
+
+                    好的，功能模块详细说明如下：
+                  </p>
+
+
+                  <div class="flex flex-col gap-2 pl-1">
+
+                    <div class="flex items-start gap-2">
+
+                      <span class="text-brand font-semibold text-[13px]">
+
+                        2.1
+                      </span>
+
+
+                      <span>
+
+                        <strong>
+
+                          对话工作区
+                        </strong>
+
+
+                        ：支持多轮对话、流式输出、Markdown 渲染、代码高亮
+                      </span>
+                    </div>
+
+
+                    <div class="flex items-start gap-2">
+
+                      <span class="text-brand font-semibold text-[13px]">
+
+                        2.2
+                      </span>
+
+
+                      <span>
+
+                        <strong>
+
+                          历史会话管理
+                        </strong>
+
+
+                        ：按时间分组、支持搜索、重命名、删除
+                      </span>
+                    </div>
+
+
+                    <div class="flex items-start gap-2">
+
+                      <span class="text-brand font-semibold text-[13px]">
+
+                        2.3
+                      </span>
+
+
+                      <span>
+
+                        <strong>
+
+                          智能体配置
+                        </strong>
+
+
+                        ：模型选择、温度调节、系统提示词设置
+                      </span>
+                    </div>
+                  </div>
+
+
+                  <div class="flex items-center gap-1.5 pt-3">
+
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand typing-dot"></span>
+
+
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand typing-dot"></span>
+
+
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand typing-dot"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <div class="shrink-0 px-6 pb-5 pt-2 bg-gradient-to-t from-canvas via-canvas to-transparent">
+
+          <div class="max-w-3xl mx-auto">
+
+            <div class="rounded-2xl bg-white border border-gray-200 shadow-soft focus-within:border-brand focus-within:shadow-softer transition-all">
+
+              <div class="flex items-end gap-2 px-3 py-2.5">
+
+                <button type="button" class="w-9 h-9 shrink-0 rounded-lg hover:bg-gray-100 flex items-center justify-center text-ink-soft transition-colors" title="上传附件">
+
+                  <i class="fas fa-paperclip text-sm"></i>
+                </button>
+
+
+                <textarea id="chat-input" rows="1" placeholder="输入消息，Enter 发送，Shift + Enter 换行..." class="flex-1 resize-none bg-transparent outline-none text-[13.5px] leading-relaxed py-2 max-h-32 scrollbar-thin placeholder:text-gray-400"></textarea>
+
+
+                <button type="button" id="btn-send" class="w-9 h-9 shrink-0 rounded-lg bg-brand hover:bg-brand-dark flex items-center justify-center text-white transition-colors shadow-softer" title="发送">
+
+                  <i class="fas fa-paper-plane text-sm"></i>
+                </button>
+              </div>
+
+
+              <div class="flex items-center justify-between px-4 pb-2.5 pt-0">
+
+                <div class="flex items-center gap-2">
+
+                  <button type="button" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-50 hover:bg-gray-100 text-[11px] text-ink-soft transition-colors">
+
+                    <i class="fas fa-microchip text-[10px]"></i>
+
+
+                    <span>
+
+                      GPT-Agent v2.1
+                    </span>
+
+
+                    <i class="fas fa-chevron-down text-[9px]"></i>
+                  </button>
+
+
+                  <button type="button" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-50 hover:bg-gray-100 text-[11px] text-ink-soft transition-colors">
+
+                    <i class="fas fa-wand-magic-sparkles text-[10px]"></i>
+
+
+                    <span>
+
+                      技能
+                    </span>
+                  </button>
+                </div>
+
+
+                <span class="text-[10px] text-gray-400">
+
+                  内容由 AI 生成，请仔细甄别
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+
+    <script id="handleNewChat">
+      function handleNewChat(event) {
+        var input = document.getElementById('chat-input');
+        if (input) {
+          input.value = '';
+          input.focus();
+        }
+      }
+    </script>
+
+
+    <script id="handleSend">
+      function handleSend(event) {
+        var input = document.getElementById('chat-input');
+        if (!input) return;
+        var text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        input.focus();
+      }
+    </script>
+
+    <script></script>
+    <script>
+      window.ytHandles = {
+
+      };
+
+      window.onload = function() {
+        try {
+          //为#btn-new-chat元素添加click事件监听器
+          let _el = document.getElementById(`btn-new-chat`);
+          if (_el) {
+            _el.addEventListener('click', function(event) {
+              handleNewChat(event);
+            })
+          }
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+        try {
+          //为#btn-send元素添加click事件监听器
+          let _el = document.getElementById(`btn-send`);
+          if (_el) {
+            _el.addEventListener('click', function(event) {
+              handleSend(event);
+            })
+          }
+        } catch (e) {
+          console.error('JsHandle error:', e);
+        }
+      }
+    </script>
+
+  </body>
+
+</html>
