@@ -6,6 +6,30 @@
 
 ***
 
+## \[未发布] 2026-10-14 · 启动入口端口占用处理
+
+**整理来源**：AI 助手（修复「重新运行 `app.py` 时端口被占用报错」）。
+
+### 变更（Changed）
+
+- **启动健壮性** [`app.py`](file:///e:/py/pyxm/tbyAgenticBaseWeb/app.py)：
+  - 补充模块中文 docstring；端口提取为模块级常量 `PORT = 10086`（**取值未变**）；
+  - `webapp.listen()` 包裹 `try/except OSError`：端口被占用（Windows `WinError 10048`）时输出明确中文提示并 `sys.exit(1)`，不再抛出异常堆栈。
+- **新增一键重启脚本** [`restart.ps1`](file:///e:/py/pyxm/tbyAgenticBaseWeb/restart.ps1)：结束本项目运行 `app.py` 的旧实例 → 等待 10086 端口释放 → 用 `.venv` 解释器前台重启服务；文件保存为 **UTF-8 with BOM**（PowerShell 5.1 正确识别中文注释）。
+
+### 校验（Verified）
+
+- 旧实例占用 10086 时重复启动：输出「启动失败：端口 10086 已被占用。…」，退出码 1，无 traceback；
+- 释放端口后启动：正常监听 10086，`GET /` 返回 HTTP 200；
+- `powershell -ExecutionPolicy Bypass -File .\restart.ps1`：正确输出中文、停旧启新，重启后 `GET /` 返回 HTTP 200。
+
+### 说明（Notes）
+
+- 未改动端口取值、路由、`cookie_secret` 等运行参数；
+- 端口被占用时仍需先停止旧实例；本改动仅将「难以理解的堆栈」转为「可操作的提示」。
+
+***
+
 ## \[未发布] 2026-10-14 · 任务3（首页原型迭代）
 
 **整理来源**：AI 助手（任务3：将 `dist/后台首页.html` 原型转换为运行时 `index.html`）。
